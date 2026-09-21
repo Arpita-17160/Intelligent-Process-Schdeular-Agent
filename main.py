@@ -11,6 +11,7 @@ from src.algorithms.sjf import sjf
 from src.metrics import print_process_table, summarize
 from src.gantt import render_gantt_chart
 from src.algorithms.round_robin import round_robin
+from src.algorithms.priority_scheduling import priority_scheduling
 
 def get_sample_workload():
     """A small hardcoded workload to demonstrate the simulator."""
@@ -46,6 +47,11 @@ def main():
     results["Round Robin"] = run_algorithm(
     "Round Robin (quantum=2)",
     lambda procs: round_robin(procs, time_quantum=2),
+    processes
+    )
+    results["Priority (aging)"] = run_algorithm(
+    "Priority Scheduling (with aging)",
+    priority_scheduling,
     processes
     )
     print(f"\n{'=' * 60}\nComparison Summary\n{'=' * 60}")
