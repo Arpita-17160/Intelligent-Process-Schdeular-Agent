@@ -14,6 +14,7 @@ from src.algorithms.round_robin import round_robin
 from src.algorithms.priority_scheduling import priority_scheduling
 from src.io_utils import load_workload_from_csv, save_results_to_csv
 from src.analytics import compare_algorithms, print_comparison_table
+from src.agent import recommend_algorithm
 
 def get_sample_workload():
     """A small hardcoded workload to demonstrate the simulator."""
@@ -64,8 +65,21 @@ def main():
     "Round Robin": lambda p: round_robin(p, time_quantum=2),
     "Priority (aging)": priority_scheduling,
     }
+    
     comparison = compare_algorithms(processes, algorithms)
     print_comparison_table(comparison)
+
+    print(f"\n{'=' * 70}\nIntelligent Agent Recommendation\n{'=' * 70}")
+    recommended_algo, reasoning, workload_stats = recommend_algorithm(processes)
+    print(f"Workload characteristics: {workload_stats}")
+    print(f"\nAgent recommends: {recommended_algo}")
+    print(f"Reasoning: {reasoning}")
+
+    # Check the agent's recommendation against the actual comparison results
+    actual_best = comparison[0]["algorithm"]
+    match = "✓ MATCHES" if recommended_algo == actual_best else "✗ differs from"
+    print(f"\nActual best performer (from comparison table): {actual_best}")
+    print(f"Agent's recommendation {match} the actual best performer.")
 
 
 if __name__ == "__main__":
