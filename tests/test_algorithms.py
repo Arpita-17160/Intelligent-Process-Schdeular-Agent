@@ -17,6 +17,7 @@ from src.process import Process
 from src.algorithms.fcfs import fcfs
 from src.algorithms.sjf import sjf
 from src.algorithms.round_robin import round_robin
+from src.algorithms.priority_scheduling import priority_scheduling
 
 def make_sample_processes():
     return [
@@ -88,3 +89,42 @@ def test_round_robin_respects_time_quantum():
     # No single slice in the Gantt chart should ever exceed the time quantum
     for pid, start, end in gantt:
         assert (end - start) <= 2
+
+def test_priority_scheduling_prevents_starvation_with_aging():
+    """
+    Set up a scenario where a low-priority process arrives early, and
+    a stream of higher-priority processes keep arriving after it.
+    Without aging, the low-priority process could wait indefinitely.
+    With aging, it MUST eventually run - we check its waiting time
+    stays within a reasonable bound instead of being enormous.
+    """
+    from src.process import Process
+
+    low_priority_process = Process("P_LOW", arrival_time=0, burst_time=4, priority=10)
+
+    # A stream of higher-priority processes arriving one after another
+    high_priority_stream = [
+        Process(f"P_HIGH{i}", arrival_time=i * 2, burst_time=2, priority=1)
+        for i in range(1, 6)
+    ]
+
+    processes = [low_priority_process] + high_priority_stream
+
+    result, gantt = priority_scheduling(processes, aging_interval=4, aging_boost=2)
+
+    low_result = next(p for p in result if p.pid == "P_LOW")
+
+    # With aging active, P_LOW's waiting time should be bounded - NOT
+    # equal to "wait for all 5 high-priority jobs to finish first"
+    total_high_priority_burst = sum(p.burst_time for p in high_priority_stream)
+    assert low_result.waiting_time < total_high_priority_burst
+
+
+def test_priority_scheduling_all_processes_complete():
+    processes = make_sample_processes()
+    result, gantt = priority_scheduling(processes)
+
+    assert len(result) == len(processes)
+    for p in result:
+        assert p.completion_time > p.arrival_time
+        assert p.waiting_time >= 0
