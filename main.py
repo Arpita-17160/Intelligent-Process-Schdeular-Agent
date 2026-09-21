@@ -13,6 +13,7 @@ from src.gantt import render_gantt_chart
 from src.algorithms.round_robin import round_robin
 from src.algorithms.priority_scheduling import priority_scheduling
 from src.io_utils import load_workload_from_csv, save_results_to_csv
+from src.analytics import compare_algorithms, print_comparison_table
 
 def get_sample_workload():
     """A small hardcoded workload to demonstrate the simulator."""
@@ -56,10 +57,15 @@ def main():
     priority_scheduling,
     processes
     )
-    print(f"\n{'=' * 60}\nComparison Summary\n{'=' * 60}")
-    for algo_name, stats in results.items():
-        print(f"{algo_name:<10} avg_waiting={stats['avg_waiting_time']:<8} "
-              f"avg_turnaround={stats['avg_turnaround_time']}")
+
+    algorithms = {
+    "FCFS": fcfs,
+    "SJF": sjf,
+    "Round Robin": lambda p: round_robin(p, time_quantum=2),
+    "Priority (aging)": priority_scheduling,
+    }
+    comparison = compare_algorithms(processes, algorithms)
+    print_comparison_table(comparison)
 
 
 if __name__ == "__main__":
