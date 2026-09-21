@@ -10,7 +10,7 @@ from src.algorithms.fcfs import fcfs
 from src.algorithms.sjf import sjf
 from src.metrics import print_process_table, summarize
 from src.gantt import render_gantt_chart
-
+from src.algorithms.round_robin import round_robin
 
 def get_sample_workload():
     """A small hardcoded workload to demonstrate the simulator."""
@@ -43,7 +43,11 @@ def main():
     results = {}
     results["FCFS"] = run_algorithm("FCFS (First Come First Serve)", fcfs, processes)
     results["SJF"] = run_algorithm("SJF (Shortest Job First)", sjf, processes)
-
+    results["Round Robin"] = run_algorithm(
+    "Round Robin (quantum=2)",
+    lambda procs: round_robin(procs, time_quantum=2),
+    processes
+    )
     print(f"\n{'=' * 60}\nComparison Summary\n{'=' * 60}")
     for algo_name, stats in results.items():
         print(f"{algo_name:<10} avg_waiting={stats['avg_waiting_time']:<8} "
