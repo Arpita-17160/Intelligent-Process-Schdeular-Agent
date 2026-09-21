@@ -16,7 +16,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 from src.process import Process
 from src.algorithms.fcfs import fcfs
 from src.algorithms.sjf import sjf
-
+from src.algorithms.round_robin import round_robin
 
 def make_sample_processes():
     return [
@@ -69,3 +69,22 @@ def test_sjf_gives_lower_or_equal_avg_waiting_time_than_fcfs():
     sjf_avg = summarize(sjf_result)["avg_waiting_time"]
 
     assert sjf_avg <= fcfs_avg
+
+def test_round_robin_all_processes_complete():
+    processes = make_sample_processes()
+    result, gantt = round_robin(processes, time_quantum=2)
+
+    assert len(result) == len(processes)
+    for p in result:
+        assert p.remaining_time == 0
+        assert p.completion_time > p.arrival_time
+        assert p.waiting_time >= 0
+
+
+def test_round_robin_respects_time_quantum():
+    processes = make_sample_processes()
+    result, gantt = round_robin(processes, time_quantum=2)
+
+    # No single slice in the Gantt chart should ever exceed the time quantum
+    for pid, start, end in gantt:
+        assert (end - start) <= 2
