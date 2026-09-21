@@ -12,6 +12,7 @@ from src.metrics import print_process_table, summarize
 from src.gantt import render_gantt_chart
 from src.algorithms.round_robin import round_robin
 from src.algorithms.priority_scheduling import priority_scheduling
+from src.io_utils import load_workload_from_csv, save_results_to_csv
 
 def get_sample_workload():
     """A small hardcoded workload to demonstrate the simulator."""
@@ -32,11 +33,12 @@ def run_algorithm(name, algo_fn, processes):
     print(f"\nAverages -> Waiting: {stats['avg_waiting_time']}  "
           f"Turnaround: {stats['avg_turnaround_time']}  "
           f"Response: {stats['avg_response_time']}")
+    save_results_to_csv(result, f"data/results_{name.split()[0]}.csv", algorithm_name=name)
     return stats
 
 
 def main():
-    processes = get_sample_workload()
+    processes = load_workload_from_csv("data/sample_workload.csv")
     print("Workload:")
     for p in processes:
         print(f"  {p}")
