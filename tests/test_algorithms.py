@@ -18,6 +18,7 @@ from src.algorithms.fcfs import fcfs
 from src.algorithms.sjf import sjf
 from src.algorithms.round_robin import round_robin
 from src.algorithms.priority_scheduling import priority_scheduling
+from src.algorithms.mlfq import mlfq
 
 def make_sample_processes():
     return [
@@ -128,3 +129,58 @@ def test_priority_scheduling_all_processes_complete():
     for p in result:
         assert p.completion_time > p.arrival_time
         assert p.waiting_time >= 0
+
+def _queue_level(label):
+    """Gantt labels for MLFQ look like 'P3(Q1)'. This extracts the 1."""
+    return int(label.split("(Q")[1].rstrip(")"))
+
+
+def test_mlfq_all_processes_complete():
+    processes = make_sample_processes()
+    result, gantt = mlfq(processes)
+
+    assert len(result) == len(processes)
+    for p in result:
+        assert p.remaining_time == 0
+        assert p.completion_time > p.arrival_time
+        assert p.waiting_time >= 0
+
+
+def test_mlfq_first_process_starts_in_top_queue():
+    processes = make_sample_processes()
+    result, gantt = mlfq(processes)
+
+    # Every new process must enter the TOP queue (Q0)
+    first_label = gantt[0][0]
+    assert _queue_level(first_label) == 0
+
+
+def test_mlfq_respects_quantum_of_each_queue():
+    quantums = (2, 4, 8)
+    processes = make_sample_processes()
+    result, gantt = mlfq(processes, quantums=quantums)
+
+    # No slice may run longer than the quantum of the queue it ran in
+    for label, start, end in gantt:
+        level = _queue_level(label)
+        assert (end - start) <= quantums[level]
+
+
+def test_mlfq_demotes_long_process_through_queues():
+    # P3 needs 10 units: too long to finish in Q0 (quantum 2) or Q1 (quantum 4),
+    # so it must sink all the way down to Q2.
+    processes = [
+        Process("P1", arrival_time=0, burst_time=5),
+        Process("P2", arrival_time=1, burst_time=3),
+        Process("P3", arrival_time=2, burst_time=10),
+    ]
+    result, gantt = mlfq(processes)
+
+    p3_levels = [_queue_level(label) for label, s, e in gantt if label.startswith("P3")]
+    assert 0 in p3_levels
+    assert 1 in p3_levels
+    assert 2 in p3_levels
+
+    # A short job like P2 (burst 3) should never need to reach the bottom queue
+    p2_levels = [_queue_level(label) for label, s, e in gantt if label.startswith("P2")]
+    assert max(p2_levels) < 2
