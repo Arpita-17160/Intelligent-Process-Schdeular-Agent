@@ -14,12 +14,17 @@ from src.process import clone_processes
 from src.metrics import compute_metrics
 
 
-def sjf(processes):
+def sjf(processes, use_prediction=False):
     """
     processes: list of Process objects (will NOT be mutated - we clone)
     Returns: (scheduled_processes, gantt_chart)
     """
     procs = clone_processes(processes)
+    def job_length(p):
+        # Which number do we use to DECIDE who runs next?
+        if use_prediction and p.predicted_burst is not None:
+            return p.predicted_burst      # the estimate
+        return p.burst_time               # the true value (textbook SJF)
     n = len(procs)
     completed = []
     ready_queue = []
@@ -39,7 +44,7 @@ def sjf(processes):
             continue
 
         # Pick the process with the smallest burst time from what's ready
-        ready_queue.sort(key=lambda p: (p.burst_time, p.arrival_time, p.pid))
+        ready_queue.sort(key=lambda p: (job_length(p), p.arrival_time, p.pid))
         p = ready_queue.pop(0)
 
         p.start_time = current_time

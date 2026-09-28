@@ -26,6 +26,9 @@ class Process:
         self.turnaround_time = 0
         self.response_time = None
 
+        # --- Filled in by the burst-time predictor (predictor.py) ---
+        self.predicted_burst = None
+
     def __repr__(self):
         return (f"Process({self.pid}, arrival={self.arrival_time}, "
                 f"burst={self.burst_time}, priority={self.priority})")
@@ -34,8 +37,11 @@ class Process:
 def clone_processes(processes):
     """
     Returns a fresh copy of a list of Process objects.
-    We need this because each algorithm MUTATES process fields
-    (completion_time, etc). If we ran FCFS then SJF on the same
-    objects, SJF would inherit leftover state from FCFS.
+    Copies predicted_burst too, so predictions survive cloning.
     """
-    return [Process(p.pid, p.arrival_time, p.burst_time, p.priority) for p in processes]
+    cloned = []
+    for p in processes:
+        new_p = Process(p.pid, p.arrival_time, p.burst_time, p.priority)
+        new_p.predicted_burst = p.predicted_burst
+        cloned.append(new_p)
+    return cloned
