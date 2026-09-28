@@ -15,6 +15,7 @@ from src.algorithms.priority_scheduling import priority_scheduling
 from src.io_utils import load_workload_from_csv, save_results_to_csv
 from src.analytics import compare_algorithms, print_comparison_table
 from src.agent import recommend_algorithm
+from src.algorithms.mlfq import mlfq
 
 def get_sample_workload():
     """A small hardcoded workload to demonstrate the simulator."""
@@ -60,10 +61,11 @@ def main():
     )
 
     algorithms = {
-    "FCFS": fcfs,
-    "SJF": sjf,
-    "Round Robin": lambda p: round_robin(p, time_quantum=2),
-    "Priority (aging)": priority_scheduling,
+        "FCFS": fcfs,
+        "SJF": sjf,
+        "Round Robin": lambda p: round_robin(p, time_quantum=2),
+        "Priority (aging)": priority_scheduling,
+        "MLFQ": mlfq,
     }
     
     comparison = compare_algorithms(processes, algorithms)
