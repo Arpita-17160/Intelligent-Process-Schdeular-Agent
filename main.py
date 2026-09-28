@@ -16,6 +16,7 @@ from src.io_utils import load_workload_from_csv, save_results_to_csv
 from src.analytics import compare_algorithms, print_comparison_table
 from src.agent import recommend_algorithm
 from src.algorithms.mlfq import mlfq
+from src.predictor import assign_predictions, mean_absolute_error
 
 def get_sample_workload():
     """A small hardcoded workload to demonstrate the simulator."""
@@ -42,9 +43,14 @@ def run_algorithm(name, algo_fn, processes):
 
 def main():
     processes = load_workload_from_csv("data/sample_workload.csv")
+    assign_predictions(processes)
     print("Workload:")
     for p in processes:
         print(f"  {p}")
+        print("\nBurst-time predictions (exponential averaging):")
+    for p in processes:
+        print(f"  {p.pid}: actual={p.burst_time}  predicted={p.predicted_burst}")
+    print(f"  Average prediction error: {mean_absolute_error(processes)}")
 
     results = {}
     results["FCFS"] = run_algorithm("FCFS (First Come First Serve)", fcfs, processes)
@@ -63,6 +69,7 @@ def main():
     algorithms = {
         "FCFS": fcfs,
         "SJF": sjf,
+        "SJF (predicted)": lambda p: sjf(p, use_prediction=True),
         "Round Robin": lambda p: round_robin(p, time_quantum=2),
         "Priority (aging)": priority_scheduling,
         "MLFQ": mlfq,

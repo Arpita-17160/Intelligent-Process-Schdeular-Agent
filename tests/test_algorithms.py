@@ -19,6 +19,7 @@ from src.algorithms.sjf import sjf
 from src.algorithms.round_robin import round_robin
 from src.algorithms.priority_scheduling import priority_scheduling
 from src.algorithms.mlfq import mlfq
+from src.predictor import predict_next_burst, assign_predictions, mean_absolute_error
 
 def make_sample_processes():
     return [
@@ -184,3 +185,48 @@ def test_mlfq_demotes_long_process_through_queues():
     # A short job like P2 (burst 3) should never need to reach the bottom queue
     p2_levels = [_queue_level(label) for label, s, e in gantt if label.startswith("P2")]
     assert max(p2_levels) < 2
+
+def test_predict_alpha_one_uses_only_last_burst():
+    assert predict_next_burst([3, 7], alpha=1) == 7
+
+
+def test_predict_alpha_zero_ignores_history():
+    assert predict_next_burst([3, 7], alpha=0, initial_guess=5) == 5
+
+
+def test_prediction_moves_toward_recent_history():
+    prediction = predict_next_burst([10, 10, 10, 10], alpha=0.5, initial_guess=2)
+    assert 2 < prediction < 10
+    assert abs(prediction - 10) < abs(2 - 10)
+
+
+def test_assign_predictions_is_complete_and_repeatable():
+    a = make_sample_processes()
+    b = make_sample_processes()
+    assign_predictions(a, seed=1)
+    assign_predictions(b, seed=1)
+    assert all(p.predicted_burst is not None for p in a)
+    assert [p.predicted_burst for p in a] == [p.predicted_burst for p in b]
+
+
+def test_sjf_with_prediction_still_runs_true_burst_time():
+    processes = assign_predictions(make_sample_processes())
+    result, gantt = sjf(processes, use_prediction=True)
+
+    burst_by_pid = {p.pid: p.burst_time for p in processes}
+    for pid, start, end in gantt:
+        assert end - start == burst_by_pid[pid]
+    assert len(result) == len(processes)
+
+
+def test_bad_prediction_changes_order_only_when_prediction_is_used():
+    processes = make_sample_processes()
+    for p in processes:
+        p.predicted_burst = p.burst_time
+    processes[1].predicted_burst = 100   # P2 is really 3, but we "mispredict" it
+
+    _, gantt_normal = sjf(processes)
+    _, gantt_pred = sjf(processes, use_prediction=True)
+
+    assert gantt_normal[1][0] == "P2"    # true SJF still picks P2 second
+    assert gantt_pred[1][0] != "P2"      # fooled by the bad estimate
