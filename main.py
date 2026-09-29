@@ -47,7 +47,7 @@ def main():
     print("Workload:")
     for p in processes:
         print(f"  {p}")
-        print("\nBurst-time predictions (exponential averaging):")
+    print("\nBurst-time predictions (exponential averaging):")
     for p in processes:
         print(f"  {p.pid}: actual={p.burst_time}  predicted={p.predicted_burst}")
     print(f"  Average prediction error: {mean_absolute_error(processes)}")
@@ -65,6 +65,7 @@ def main():
     priority_scheduling,
     processes
     )
+    results["MLFQ"] = run_algorithm("MLFQ (Multilevel Feedback Queue)", mlfq, processes)
 
     algorithms = {
         "FCFS": fcfs,

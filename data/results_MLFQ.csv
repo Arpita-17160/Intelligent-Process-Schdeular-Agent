@@ -1,0 +1,5 @@
+algorithm,pid,arrival_time,burst_time,priority,start_time,completion_time,waiting_time,turnaround_time,response_time
+MLFQ (Multilevel Feedback Queue),P1,0,5,2,0,11,6,11,0
+MLFQ (Multilevel Feedback Queue),P2,1,3,1,2,12,8,11,1
+MLFQ (Multilevel Feedback Queue),P3,2,8,3,4,22,12,20,2
+MLFQ (Multilevel Feedback Queue),P4,3,6,2,6,20,11,17,3

@@ -14,10 +14,6 @@ from src.process import Process
 
 
 def load_workload_from_csv(filepath):
-    """
-    Reads a CSV file with columns: pid, arrival_time, burst_time, priority
-    Returns a list of Process objects.
-    """
     processes = []
     with open(filepath, newline="") as f:
         reader = csv.DictReader(f)
@@ -32,12 +28,7 @@ def load_workload_from_csv(filepath):
 
 
 def save_results_to_csv(processes, filepath, algorithm_name=""):
-    """
-    Writes scheduled process results (with computed metrics) to a CSV
-    file - useful for keeping a record of a run, or analyzing results
-    later in Excel/pandas.
-    """
-    with open(filepath, "w", newline="") as f:
+      with open(filepath, "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow([
             "algorithm", "pid", "arrival_time", "burst_time", "priority",
