@@ -128,7 +128,7 @@ def save_dataset(rows, filepath):
 
 
 if __name__ == "__main__":
-    rows = build_dataset(num_workloads=500)
+    rows = build_dataset(num_workloads=3000)
     save_dataset(rows, "data/training_data.csv")
     print(f"Saved {len(rows)} labelled examples to data/training_data.csv\n")
 
