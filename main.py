@@ -14,7 +14,9 @@ from src.algorithms.round_robin import round_robin
 from src.algorithms.priority_scheduling import priority_scheduling
 from src.io_utils import load_workload_from_csv, save_results_to_csv
 from src.analytics import compare_algorithms, print_comparison_table
-from src.agent import recommend_algorithm
+from src.agent import analyze_workload
+from src.ml_agent import recommend_algorithm_ml
+from ml.generate_training_data import ALGORITHMS, GOALS, score
 from src.algorithms.mlfq import mlfq
 from src.predictor import assign_predictions, mean_absolute_error
 
@@ -79,17 +81,22 @@ def main():
     comparison = compare_algorithms(processes, algorithms)
     print_comparison_table(comparison)
 
-    print(f"\n{'=' * 70}\nIntelligent Agent Recommendation\n{'=' * 70}")
-    recommended_algo, reasoning, workload_stats = recommend_algorithm(processes)
-    print(f"Workload characteristics: {workload_stats}")
-    print(f"\nAgent recommends: {recommended_algo}")
-    print(f"Reasoning: {reasoning}")
+    print(f"\n{'=' * 70}\nML Agent Recommendations (one per goal)\n{'=' * 70}")
+    print(f"Workload characteristics: {analyze_workload(processes)}")
 
-    # Check the agent's recommendation against the actual comparison results
-    actual_best = comparison[0]["algorithm"]
-    match = "✓ MATCHES" if recommended_algo == actual_best else "✗ differs from"
-    print(f"\nActual best performer (from comparison table): {actual_best}")
-    print(f"Agent's recommendation {match} the actual best performer.")
+    # Run the five competing algorithms once; the GOAL decides how we score them
+    scheduled = {name: fn(processes)[0] for name, fn in ALGORITHMS.items()}
+
+    for goal in GOALS:
+        pick, path, _ = recommend_algorithm_ml(processes, goal)
+        scores = {name: score(goal, res) for name, res in scheduled.items()}
+        best = min(scores.values())
+        verdict = "✓ optimal" if scores[pick] - best < 1e-9 else f"✗ best possible was {best}"
+
+        print(f"\nGoal: {goal}")
+        print(f"  Agent picks: {pick} (score {scores[pick]})  {verdict}")
+        print("  Scores (lower is better): " + " | ".join(f"{n} {s}" for n, s in scores.items()))
+        print(f"  Why: {path}")
 
 
 if __name__ == "__main__":

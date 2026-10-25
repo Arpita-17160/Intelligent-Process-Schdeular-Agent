@@ -72,6 +72,8 @@ def recommend_algorithm_ml(processes, goal):
     goal: "waiting", "response" or "priority"
     """
     bundle = _load_model()
+    if goal not in GOAL_LOOKUP:
+        raise ValueError(f"Unknown goal '{goal}'. Choose one of: {', '.join(GOAL_LOOKUP)}")
     model, columns = bundle["model"], bundle["feature_columns"]
 
     stats = analyze_workload(processes)
