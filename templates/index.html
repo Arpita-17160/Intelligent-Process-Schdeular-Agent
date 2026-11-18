@@ -1,0 +1,151 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Intelligent Process Schedular Agent</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<header class="top">
+    <div class="wrap">
+        <div class="bar">
+            <div>
+                <h1>Intelligent Process Schedular Agent</h1>
+                <p>CPU scheduling, deadlocks and memory allocation</p>
+            </div>
+        </div>
+
+        <nav role="tablist" aria-label="Sections">
+            <button role="tab" aria-selected="true" data-tab="cpu">CPU scheduling</button>
+            <button role="tab" aria-selected="false" data-tab="dead">Deadlock</button>
+            <button role="tab" aria-selected="false" data-tab="mem">Memory allocation</button>
+        </nav>
+    </div>
+</header>
+
+<main class="wrap">
+    <section id="cpu" class="panel">
+        <div class="card">
+            <h2>Workload</h2>
+            <p class="hint">Edit the table to describe your processes. A lower priority number means a higher priority.</p>
+            <div class="scroll"><table id="wl"></table></div>
+            <div class="row">
+                <button id="add">Add process</button>
+                <button id="reset" class="ghost">Reset example</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Schedule</h2>
+            <div class="row">
+                <label>Algorithm
+                    <select id="algo">
+                        <option value="fcfs">First Come First Serve (FCFS)</option>
+                        <option value="sjf">Shortest Job First (SJF)</option>
+                        <option value="rr">Round Robin</option>
+                        <option value="pri">Priority scheduling</option>
+                        <option value="mlfq">Multilevel Feedback Queue (MLFQ)</option>
+                    </select>
+                </label>
+                <label>Round Robin time quantum
+                    <input id="q" value="2" inputmode="numeric" style="width:120px">
+                </label>
+            </div>
+            <p class="hint" id="note"></p>
+            <div id="err" class="err" role="alert"></div>
+            <div id="out"></div>
+        </div>
+
+        <div class="card">
+            <h2>Comparison</h2>
+            <p class="hint">All five algorithms on the same workload. The lowest average waiting time is highlighted.</p>
+            <div id="cmp" class="scroll"></div>
+            
+<div class="comparison-controls">
+    <label for="comparison-goal">Optimize scheduling for:</label>
+    <select id="comparison-goal">
+        <option value="waiting">Lowest average waiting time</option>
+        <option value="turnaround">Lowest average turnaround time</option>
+        <option value="response">Lowest average response time</option>
+    </select>
+</div>
+<br>
+<!-- ML Recommendation -->
+<section class="card" id="recommendation-section">
+    <h2>ML Algorithm Recommendation</h2>
+
+    <p>
+        Get a scheduling algorithm recommendation based
+        on your workload and performance goal.
+    </p>
+
+    <label for="recommendation-goal">
+        Select Optimization Goal
+    </label>
+
+    <select id="recommendation-goal">
+        <option value="waiting">Minimize Waiting Time</option>
+        <option value="response">Minimize Response Time</option>
+        <option value="priority">Minimize Priority-Weighted Waiting Time</option>
+    </select>
+
+    <button type="button" id="recommend-button">
+        Recommend Algorithm
+    </button>
+
+    <div id="recommendation-result" aria-live="polite"></div>
+</section>
+
+</div>
+    </section>
+
+    <section id="dead" class="panel" hidden>
+        <div class="card">
+            <h2>Banker's algorithm</h2>
+            <p class="hint">Before a request is granted, the system must stay in a safe state: some order must exist in which every process can still finish.</p>
+            <div class="row">
+                <label>Processes<input id="bk-n" type="number" min="1" max="8"></label>
+                <label>Resource types<input id="bk-m" type="number" min="1" max="6"></label>
+            </div>
+            <div id="bk-grid"></div>
+            <div id="bk-out"></div>
+            <h3>Check a resource request</h3>
+            <div class="row" id="bk-req"></div>
+            <div id="bk-res"></div>
+        </div>
+
+        <div class="card">
+            <h2>Deadlock detection</h2>
+            <p class="hint">Processes are already waiting. Detection finds the ones that can never continue.</p>
+            <div class="row">
+                <label>Processes<input id="dt-n" type="number" min="1" max="8"></label>
+                <label>Resource types<input id="dt-m" type="number" min="1" max="6"></label>
+            </div>
+            <div id="dt-grid"></div>
+            <div id="dt-out"></div>
+        </div>
+    </section>
+
+    <section id="mem" class="panel" hidden>
+        <div class="card">
+            <h2>Memory allocation</h2>
+            <p class="hint">Enter the free memory blocks in address order and the size each process asks for, separated by commas.</p>
+            <div class="row">
+                <label>Free blocks<input id="blocks" value="100, 500, 200, 300, 600" style="width:300px;max-width:100%"></label>
+                <label>Process requests<input id="reqs" value="212, 417, 112, 426" style="width:300px;max-width:100%"></label>
+            </div>
+            <div id="mem-err" class="err" role="alert"></div>
+        </div>
+        <div id="mem-summary" class="mem-summary"></div>
+<div id="mem-out" class="grid3"></div>
+    </section>
+</main>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,249 @@
+:root{--bg:#F4F5F7;--surface:#FFFFFF;--text:#1A2230;--muted:#586272;--line:#DADFE6;--accent:#0F766E;--on-accent:#FFFFFF;--soft:#E3F1EF;--ok:#15803D;--bad:#B91C1C;--idle:#C9CFD8;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#11151B;--surface:#1A2029;--text:#E6EAF0;--muted:#9AA5B4;--line:#2D3541;--accent:#2DD4BF;--on-accent:#0B1A18;--soft:#1B2D2C;--ok:#4ADE80;--bad:#F87171;--idle:#3A4350}}
+:root[data-theme="dark"]{--bg:#11151B;--surface:#1A2029;--text:#E6EAF0;--muted:#9AA5B4;--line:#2D3541;--accent:#2DD4BF;--on-accent:#0B1A18;--soft:#1B2D2C;--ok:#4ADE80;--bad:#F87171;--idle:#3A4350}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.wrap{max-width:1100px;margin:0 auto;padding:0 20px}
+.top{background:var(--surface);border-bottom:1px solid var(--line)}
+.bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding-top:16px}
+h1{margin:0;font-size:1.35rem;letter-spacing:-.01em}
+.top p{margin:2px 0 0;color:var(--muted);font-size:.9rem}
+nav{display:flex;gap:4px;overflow-x:auto}
+nav button{border:0;background:none;color:var(--muted);font:inherit;font-weight:600;padding:12px 16px;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
+nav button[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+main{padding:24px 20px 48px}
+.panel[hidden]{display:none}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px;margin-bottom:18px}
+h2{margin:0 0 4px;font-size:1.1rem}
+h3{margin:18px 0 8px;font-size:.95rem}
+.hint{margin:0 0 12px;color:var(--muted);font-size:.9rem}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin:12px 0}
+label{display:flex;flex-direction:column;gap:4px;font-size:.85rem;font-weight:600;color:var(--muted)}
+input,select{font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:7px 9px;min-width:0}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+td input{width:100%;min-width:64px}
+button{font:inherit;font-weight:600;border-radius:6px;padding:8px 14px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:var(--on-accent)}
+button.ghost{background:none;color:var(--accent)}
+button.sm{padding:4px 10px;font-size:.85rem}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--muted);font-size:.8rem;text-transform:uppercase;letter-spacing:.04em}
+td.n,th.n{text-align:right}
+tr.best td{background:var(--soft);font-weight:600}
+tr.foot td{font-weight:700;border-bottom:0}
+.err{color:var(--bad);font-weight:600;margin:8px 0}
+.ok{color:var(--ok);font-weight:700}
+.bad{color:var(--bad);font-weight:700}
+.gantt{display:flex;padding:4px 0 28px;overflow-x:auto}
+.seg{position:relative;height:44px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.85rem;border-right:2px solid var(--surface);flex:none}
+.seg.idle{background:var(--idle);color:var(--muted);font-weight:600}
+.seg small{font-weight:600;opacity:.85;margin-left:4px}
+.tick{position:absolute;top:48px;left:0;transform:translateX(-50%);color:var(--muted);font-size:.75rem;font-weight:500}
+.tick.end{left:auto;right:0;transform:translateX(50%)}
+
+.grid3 {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    width: 100%;
+}
+
+.stat{color:var(--muted);font-size:.9rem;margin:4px 0 10px}
+.mem{display:flex;height:40px;border:1px solid var(--line);border-radius:6px;overflow:hidden;margin:8px 0 14px}
+.mem div{display:flex;align-items:center;justify-content:center;color:#fff;font-size:.78rem;font-weight:700;border-right:2px solid var(--surface);overflow:hidden}
+.mem div.free{background:var(--idle);color:var(--muted);font-weight:600}
+.mat{display:inline-block;margin:0 22px 14px 0;vertical-align:top}
+.mat h3{margin-top:6px}
+.mat input{width:58px;min-width:0;text-align:center;padding:5px}
+.mat td,.mat th{padding:3px 4px;border:0}
+.msg{border-left:4px solid var(--accent);background:var(--soft);padding:10px 14px;border-radius:0 6px 6px 0;margin:12px 0}
+.msg.bad-box{border-left-color:var(--bad)}
+@media (max-width:560px){.wrap{padding:0 14px}main{padding:18px 14px 40px}.card{padding:16px}}
+
+/* Memory allocation UI improvements */
+.mem-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.mem-stat {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px;
+}
+
+.mem-stat span {
+    display: block;
+    color: var(--muted);
+    font-size: 0.85rem;
+}
+
+.mem-stat strong {
+    display: block;
+    font-size: 1.4rem;
+    margin-top: 4px;
+}
+
+.mem-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 10px 0;
+    font-size: 0.82rem;
+    color: var(--muted);
+}
+
+.mem-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.mem-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.mem-addresses {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 0.78rem;
+    color: var(--muted);
+}
+
+.mem div.free {
+    background: #E5E7EB;
+    color: #374151;
+}
+
+.mem-result {
+    padding: 10px;
+    border-radius: 7px;
+    background: var(--bg);
+    white-space: normal;
+}
+
+.mem-result .address {
+    display: block;
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 0.82rem;
+}
+
+@media (max-width: 600px) {
+    .mem-summary {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Styles matching the updated memory allocation UI */
+.memory-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 16px 0 22px;
+}
+
+.memory-segment {
+    display: grid;
+    grid-template-columns: 115px minmax(0, 1fr) 100px;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+}
+
+.memory-range {
+    color: var(--muted);
+    font-size: 0.8rem;
+}
+
+.memory-segment-bar {
+    min-width: 0;
+    padding: 9px;
+    border-radius: 5px;
+    color: white;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.memory-segment-bar.free {
+    background: #E5E7EB !important;
+    color: #374151;
+}
+
+.memory-segment-size {
+    text-align: right;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.memory-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+}
+
+.memory-summary-item {
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--bg);
+}
+
+.memory-summary-item span {
+    display: block;
+    color: var(--muted);
+    font-size: 0.82rem;
+}
+
+.memory-summary-item strong {
+    display: block;
+    font-size: 1.2rem;
+    margin-top: 4px;
+}
+
+.memory-status {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 5px;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.memory-status.success {
+    background: #DCFCE7;
+    color: #166534;
+}
+
+.memory-status.failure {
+    background: #FEE2E2;
+    color: #991B1B;
+}
+
+@media (max-width: 600px) {
+    .memory-segment {
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
+
+    .memory-segment-size {
+        text-align: left;
+    }
+
+    .memory-summary-grid {
+        grid-template-columns: 1fr;
+    }
+}

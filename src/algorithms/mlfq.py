@@ -77,3 +77,4 @@ def mlfq(processes, quantums=(2, 4, 8)):
 
     compute_metrics(completed)
     return completed, gantt_chart
+
